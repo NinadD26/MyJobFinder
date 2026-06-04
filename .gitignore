@@ -3,21 +3,17 @@ backend/venv/
 __pycache__/
 *.pyc
 
-# Environment variables
+# Environment
 backend/.env
 
 # Node
 frontend/node_modules/
 
-# Build artifacts
+# Build
 frontend/dist/
 
-# Uploaded files
+# Uploads
 backend/uploads/
 
 # IDE
 .vscode/
-
-# OS
-.DS_Store
-Thumbs.db
