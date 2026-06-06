@@ -1,0 +1,32 @@
+services:
+
+  backend:
+
+    build:
+      context: ./backend
+
+    container_name: jobfinder-backend
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - ./backend/.env
+
+    restart: unless-stopped
+
+
+  frontend:
+
+    build:
+      context: ./frontend
+
+    container_name: jobfinder-frontend
+
+    ports:
+      - "5173:80"
+
+    depends_on:
+      - backend
+
+    restart: unless-stopped
