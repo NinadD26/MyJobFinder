@@ -1,36 +1,132 @@
 import { useEffect, useState } from "react";
-import { getJobs } from "../services/jobsService";
+
+import {
+  getJobs,
+  analyzeMatch,
+  optimizeResume
+} from "../services/jobsService";
+
+import JobCard from "../components/JobCard";
+import JobAnalysisModal from "../components/JobAnalysisModal";
+import ResumeOptimizationModal from "../components/ResumeOptimizationModal";
 
 export default function Jobs() {
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [location, setLocation] =
     useState("Remote");
 
+  const [analyzing, setAnalyzing] =
+    useState(false);
+
+  const [optimizing, setOptimizing] =
+    useState(false);
+
+  const [analysis, setAnalysis] =
+    useState(null);
+
+  const [optimization, setOptimization] =
+    useState(null);
+
+  const [showAnalysisModal,
+    setShowAnalysisModal] =
+    useState(false);
+
+  const [showOptimizationModal,
+    setShowOptimizationModal] =
+    useState(false);
+
   useEffect(() => {
-    loadJobs();
+    loadJobs(location);
   }, [location]);
 
-  const loadJobs = async () => {
+  const loadJobs = async (
+    selectedLocation
+  ) => {
+
     try {
+
       setLoading(true);
 
       const data = await getJobs(
-        location
+        selectedLocation
       );
 
-      console.log("Jobs:", data);
-
       setJobs(data);
+
     } catch (error) {
+
       console.error(error);
+
     } finally {
+
       setLoading(false);
+
+    }
+  };
+
+  const handleAnalyze = async (
+    job
+  ) => {
+
+    try {
+
+      setAnalyzing(true);
+
+      const result =
+        await analyzeMatch(job);
+
+      setAnalysis(result);
+
+      setShowAnalysisModal(true);
+
+    } catch (error) {
+
+      console.error(
+        "Analyze Error:",
+        error
+      );
+
+    } finally {
+
+      setAnalyzing(false);
+
+    }
+  };
+
+  const handleOptimize = async (
+    job
+  ) => {
+
+    try {
+
+      setOptimizing(true);
+
+      const result =
+        await optimizeResume(job);
+
+      setOptimization(result);
+
+      setShowOptimizationModal(true);
+
+    } catch (error) {
+
+      console.error(
+        "Optimization Error:",
+        error
+      );
+
+    } finally {
+
+      setOptimizing(false);
+
     }
   };
 
   if (loading) {
+
     return (
       <div className="p-6">
         Loading jobs...
@@ -39,15 +135,14 @@ export default function Jobs() {
   }
 
   return (
+
     <div className="max-w-7xl mx-auto p-6">
 
       <h1 className="text-4xl font-bold mb-8">
         Recommended Jobs
       </h1>
 
-      {/* Location Filter */}
-
-      <div className="mb-6">
+      <div className="mb-8">
 
         <label className="block mb-2 font-medium">
           Location
@@ -56,14 +151,18 @@ export default function Jobs() {
         <select
           value={location}
           onChange={(e) =>
-            setLocation(e.target.value)
+            setLocation(
+              e.target.value
+            )
           }
           className="
             border
             rounded
-            p-2
+            px-3
+            py-2
           "
         >
+
           <option value="Remote">
             Remote
           </option>
@@ -84,76 +183,105 @@ export default function Jobs() {
 
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-
-        {jobs.map((job, index) => (
+      {
+        analyzing && (
 
           <div
-            key={index}
             className="
-              bg-white
-              rounded-xl
-              shadow-md
-              p-6
+              mb-4
+              p-4
+              rounded
+              bg-yellow-100
             "
           >
-
-            <h2 className="text-xl font-bold mb-2">
-              {job.title}
-            </h2>
-
-            <p className="text-gray-700">
-              {job.company}
-            </p>
-
-            <p className="text-gray-600">
-              {job.location}
-            </p>
-
-            <div className="mt-3">
-
-              <p>
-                Min Salary:
-                {" "}
-                {job.salary_min
-                  ? `₹${job.salary_min}`
-                  : "Not Available"}
-              </p>
-
-              <p>
-                Max Salary:
-                {" "}
-                {job.salary_max
-                  ? `₹${job.salary_max}`
-                  : "Not Available"}
-              </p>
-
-            </div>
-
-            <a
-              href={job.redirect_url}
-              target="_blank"
-              rel="noreferrer"
-              className="
-                inline-block
-                mt-4
-                bg-blue-600
-                text-white
-                px-4
-                py-2
-                rounded
-                hover:bg-blue-700
-              "
-            >
-              View Job
-            </a>
-
+            Analyzing job match...
           </div>
 
-        ))}
+        )
+      }
+
+      {
+        optimizing && (
+
+          <div
+            className="
+              mb-4
+              p-4
+              rounded
+              bg-purple-100
+            "
+          >
+            Optimizing resume...
+          </div>
+
+        )
+      }
+
+      <div
+        className="
+          grid
+          md:grid-cols-2
+          gap-6
+        "
+      >
+
+        {jobs.map(
+          (
+            job,
+            index
+          ) => (
+
+            <JobCard
+              key={index}
+              job={job}
+              onAnalyze={
+                handleAnalyze
+              }
+              onOptimize={
+                handleOptimize
+              }
+            />
+
+          )
+        )}
 
       </div>
 
+      {
+        showAnalysisModal &&
+        analysis && (
+
+          <JobAnalysisModal
+            analysis={analysis}
+            onClose={() =>
+              setShowAnalysisModal(
+                false
+              )
+            }
+          />
+
+        )
+      }
+
+      {
+        showOptimizationModal &&
+        optimization && (
+
+          <ResumeOptimizationModal
+            optimization={
+              optimization
+            }
+            onClose={() =>
+              setShowOptimizationModal(
+                false
+              )
+            }
+          />
+
+        )
+      }
+
     </div>
+
   );
 }

@@ -16,3 +16,27 @@ export const getJobs = async (
 
   return response.data;
 };
+
+export const analyzeMatch = async (
+  job
+) => {
+
+  const response = await axios.post(
+    `${API_BASE_URL}/jobs/analyze`,
+    job
+  );
+
+  return response.data;
+};
+
+export const optimizeResume = async (
+  job
+) => {
+
+  const response = await axios.post(
+    `${API_BASE_URL}/jobs/optimize-resume`,
+    job
+  );
+
+  return response.data;
+};
