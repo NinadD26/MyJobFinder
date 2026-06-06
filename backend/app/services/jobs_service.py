@@ -4,7 +4,7 @@ from app.db import db
 from app.config import ADZUNA_APP_ID, ADZUNA_APP_KEY
 
 
-async def get_recommended_jobs():
+async def get_recommended_jobs(location="Remote"):
 
     # Read latest uploaded profile from MongoDB
     latest_profile = await db.profiles.find_one(
@@ -32,22 +32,31 @@ async def get_recommended_jobs():
         []
     )
 
-    # Use title only initially
     query = title
 
     print("TITLE:", title)
     print("SKILLS:", skills)
     print("QUERY:", query)
+    print("LOCATION:", location)
     print("APP_ID:", ADZUNA_APP_ID)
     print("APP_KEY_EXISTS:", bool(ADZUNA_APP_KEY))
 
-    url = (
+    base_url = (
         f"https://api.adzuna.com/v1/api/jobs/in/search/1"
         f"?app_id={ADZUNA_APP_ID}"
         f"&app_key={ADZUNA_APP_KEY}"
         f"&results_per_page=20"
         f"&what={query}"
     )
+
+    # Remote = no location filter
+    if location == "Remote":
+        url = base_url
+    else:
+        url = (
+            f"{base_url}"
+            f"&where={location}"
+        )
 
     print("\nREQUEST URL:")
     print(url)

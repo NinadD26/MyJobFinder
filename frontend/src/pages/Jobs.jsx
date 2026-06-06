@@ -5,13 +5,20 @@ export default function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [location, setLocation] =
+    useState("Remote");
+
   useEffect(() => {
     loadJobs();
-  }, []);
+  }, [location]);
 
   const loadJobs = async () => {
     try {
-      const data = await getJobs();
+      setLoading(true);
+
+      const data = await getJobs(
+        location
+      );
 
       console.log("Jobs:", data);
 
@@ -38,13 +45,57 @@ export default function Jobs() {
         Recommended Jobs
       </h1>
 
+      {/* Location Filter */}
+
+      <div className="mb-6">
+
+        <label className="block mb-2 font-medium">
+          Location
+        </label>
+
+        <select
+          value={location}
+          onChange={(e) =>
+            setLocation(e.target.value)
+          }
+          className="
+            border
+            rounded
+            p-2
+          "
+        >
+          <option value="Remote">
+            Remote
+          </option>
+
+          <option value="Mumbai">
+            Mumbai
+          </option>
+
+          <option value="Pune">
+            Pune
+          </option>
+
+          <option value="Kolhapur">
+            Kolhapur
+          </option>
+
+        </select>
+
+      </div>
+
       <div className="grid md:grid-cols-2 gap-6">
 
         {jobs.map((job, index) => (
 
           <div
             key={index}
-            className="bg-white rounded-xl shadow-md p-6"
+            className="
+              bg-white
+              rounded-xl
+              shadow-md
+              p-6
+            "
           >
 
             <h2 className="text-xl font-bold mb-2">
